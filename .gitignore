@@ -21,4 +21,3 @@ lerna-debug.log*
 .Trashes
 ehthumbs.db
 Thumbs.db
-/src/generated/prisma
