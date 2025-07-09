@@ -2,7 +2,8 @@
 
 import { FunctionDeclaration, Part } from '@google/generative-ai'; // Import FunctionDeclaration from the SDK
 
-// --- Weather API Types ---
+// src/types/index.ts
+
 export interface WeatherData {
     location: string;
     temperature: number;
@@ -11,21 +12,39 @@ export interface WeatherData {
     description: string;
     wind_speed: number;
     unit: 'Celsius' | 'Fahrenheit';
+    iconUrl: string; // <-- NEW
 }
 
 export interface ForecastItem {
     date: string;
     temperature: number;
     feels_like: number;
-    humidity: number;       // <-- ADD THIS
-    wind_speed: number;     // <-- ADD THIS
+    humidity: number;
+    wind_speed: number;
     description: string;
     unit: 'Celsius' | 'Fahrenheit';
+    iconUrl: string; // <-- NEW
 }
 
 export interface ForecastData {
     location: string;
     forecast: ForecastItem[];
+}
+
+export interface SprayingAdvice {
+    location: string;
+    date: string;
+    status: 'Good' | 'Caution' | 'Unsuitable';
+    reasons: string[];
+    details: {
+        temperature: number;
+        feels_like: number;
+        humidity: number;
+        windSpeed: number;
+        description: string;
+        rainProbability: number;
+        iconUrl: string; // <-- NEW, nested within details
+    };
 }
 
 // --- Spraying Advice Types ---
@@ -41,6 +60,7 @@ export interface SprayingAdvice {
         windSpeed: number; // Sticking to camelCase for consistency in the response
         description: string;
         rainProbability: number;
+        iconUrl: string;
         // deltaT?: number; // Keep this optional if not always available
     };
 }

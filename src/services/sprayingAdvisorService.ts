@@ -32,19 +32,18 @@ export async function getSprayingAdvice(
 ): Promise<SprayingAdvice | { error: string }> {
     const requestedDate = new Date(date);
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normalize to start of day
+    today.setHours(0, 0, 0, 0);
 
     let daysOffset = 0;
     if (requestedDate.toDateString() === today.toDateString()) {
-        daysOffset = 0; // "today"
+        daysOffset = 0;
     } else {
         daysOffset = Math.ceil((requestedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
         if (daysOffset < 0) daysOffset = 0;
         if (daysOffset > 4) daysOffset = 4;
     }
 
-    // Call getForecast with coordinates instead of location name
-    const forecastResult = await getForecast({ location: params.locationName, lat: params.lat, lon: params.lon }, daysOffset + 1); // Pass params object
+    const forecastResult = await getForecast({ lat: params.lat, lon: params.lon }, daysOffset + 1);
 
     if ('error' in forecastResult) {
         return { error: `Could not get weather data for spraying advice: ${forecastResult.error}` };
@@ -56,7 +55,7 @@ export async function getSprayingAdvice(
         return { error: `No forecast available for ${date} in the specified location. Please ensure the date is within the next 5 days.` };
     }
 
-    const { temperature, feels_like, humidity, wind_speed, description } = targetForecast;
+    const { temperature, feels_like, humidity, wind_speed, description, iconUrl } = targetForecast; // <-- ADDED iconUrl
 
     let status: 'Good' | 'Caution' | 'Unsuitable' = 'Good';
     const reasons: string[] = [];
@@ -117,6 +116,7 @@ export async function getSprayingAdvice(
     if (status === 'Good' && reasons.length === 0) {
         reasons.push('All weather parameters appear within optimal ranges.');
     }
+    
 
     return {
         location: params.locationName || forecastResult.location, // Use provided name or fetched name
@@ -130,6 +130,7 @@ export async function getSprayingAdvice(
             windSpeed: wind_speed,
             description,
             rainProbability,
+            iconUrl,
         }
     };
 }

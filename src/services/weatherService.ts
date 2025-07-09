@@ -1,9 +1,15 @@
 // src/services/weatherService.ts
 import axios from 'axios';
 import { WeatherData, ForecastData, ForecastItem } from '../types';
-import config from '../config/environment'; // Import config
+import config from '../config/environment';
 
 const OPENWEATHER_API_KEY = config.openWeatherApiKey;
+const OPENWEATHER_ICON_BASE_URL = 'https://openweathermap.org/img/wn/'; // Base URL for icons
+
+// Helper function to get the icon URL
+function getOpenWeatherIconUrl(iconCode: string): string {
+    return `${OPENWEATHER_ICON_BASE_URL}${iconCode}@2x.png`;
+}
 
 export async function getCurrentWeather(
     params: { location?: string; lat?: number; lon?: number },
@@ -26,6 +32,9 @@ export async function getCurrentWeather(
     try {
         const response = await axios.get(apiUrl);
         const data = response.data;
+        const iconCode = data.weather[0].icon; // Extract icon code
+        const iconUrl = getOpenWeatherIconUrl(iconCode); // Construct icon URL
+
         return {
             location: data.name,
             temperature: data.main.temp,
@@ -33,7 +42,8 @@ export async function getCurrentWeather(
             humidity: data.main.humidity,
             description: data.weather[0].description,
             wind_speed: data.wind.speed,
-            unit: unit === 'metric' ? 'Celsius' : 'Fahrenheit'
+            unit: unit === 'metric' ? 'Celsius' : 'Fahrenheit',
+            iconUrl: iconUrl // <-- ADDED
         };
     } catch (error: any) {
         console.error(`Error fetching current weather for ${params.location || `lat:${params.lat},lon:${params.lon}`}:`, error.message);
@@ -44,36 +54,8 @@ export async function getCurrentWeather(
     }
 }
 
-
-// export async function getCurrentWeather(location: string, unit: 'metric' | 'imperial' = 'metric'): Promise<WeatherData | { error: string }> {
-//     if (!OPENWEATHER_API_KEY) {
-//         return { error: "OpenWeatherMap API key is not configured." };
-//     }
-//     const apiUrl = `http://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${OPENWEATHER_API_KEY}&units=${unit}`;
-
-//     try {
-//         const response = await axios.get(apiUrl);
-//         const data = response.data;
-//         return {
-//             location: data.name,
-//             temperature: data.main.temp,
-//             feels_like: data.main.feels_like,
-//             humidity: data.main.humidity,
-//             description: data.weather[0].description,
-//             wind_speed: data.wind.speed,
-//             unit: unit === 'metric' ? 'Celsius' : 'Fahrenheit'
-//         };
-//     } catch (error: any) {
-//         console.error(`Error fetching current weather for ${location}:`, error.message);
-//         if (error.response && error.response.status === 404) {
-//             return { error: `City '${location}' not found. Please check the spelling.` };
-//         }
-//         return { error: `Could not fetch current weather for ${location}. Please try again later.` };
-//     }
-// }
-
 export async function getForecast(
-    params: { location?: string; lat?: number; lon?: number }, // <-- Changed this signature
+    params: { location?: string; lat?: number; lon?: number },
     days: number = 1,
     unit: 'metric' | 'imperial' = 'metric'
 ): Promise<ForecastData | { error: string }> {
@@ -103,8 +85,10 @@ export async function getForecast(
             const dateString = forecastDate.toDateString();
 
             if (!addedDates.has(dateString) && dailyForecasts.length < days) {
-                // We typically want a daytime forecast, so pick a specific hour range
-                if (forecastDate.getHours() >= 10 && forecastDate.getHours() <= 14) { // Example: using 10 AM to 2 PM data
+                if (forecastDate.getHours() >= 10 && forecastDate.getHours() <= 14) {
+                    const iconCode = forecastItem.weather[0].icon; // Extract icon code
+                    const iconUrl = getOpenWeatherIconUrl(iconCode); // Construct icon URL
+
                     dailyForecasts.push({
                         date: dateString,
                         temperature: forecastItem.main.temp,
@@ -112,7 +96,8 @@ export async function getForecast(
                         humidity: forecastItem.main.humidity,
                         wind_speed: forecastItem.wind.speed,
                         description: forecastItem.weather[0].description,
-                        unit: unit === 'metric' ? 'Celsius' : 'Fahrenheit'
+                        unit: unit === 'metric' ? 'Celsius' : 'Fahrenheit',
+                        iconUrl: iconUrl // <-- ADDED
                     });
                     addedDates.add(dateString);
                 }
@@ -123,7 +108,7 @@ export async function getForecast(
         }
 
         return {
-            location: data.city.name, // OpenWeatherMap returns city name even for lat/lon queries
+            location: data.city.name,
             forecast: dailyForecasts
         };
 
