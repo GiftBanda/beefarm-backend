@@ -8,7 +8,7 @@ const OPENWEATHER_ICON_BASE_URL = 'https://openweathermap.org/img/wn/'; // Base 
 
 // Helper function to get the icon URL
 function getOpenWeatherIconUrl(iconCode: string): string {
-    return `${OPENWEATHER_ICON_BASE_URL}${iconCode}@2x.png`;
+    return `${OPENWEATHER_ICON_BASE_URL}${iconCode}@4x.png`;
 }
 
 export async function getCurrentWeather(
