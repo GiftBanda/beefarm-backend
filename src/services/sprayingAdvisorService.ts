@@ -2,7 +2,7 @@
 import { getForecast } from './weatherService';
 import { ForecastItem, SprayingAdvice } from '../types';
 
-// Define thresholds for spraying conditions
+// Define thresholds for spraying conditions (keep these as they are)
 const SPRAYING_THRESHOLDS = {
     windSpeed: { // km/h
         optimal: { min: 5, max: 20 },
@@ -25,25 +25,26 @@ const SPRAYING_THRESHOLDS = {
     },
 };
 
-export async function getSprayingAdvice(location: string, date: string): Promise<SprayingAdvice | { error: string }> {
+// Modify getSprayingAdvice to accept coordinates and an optional location name (for display)
+export async function getSprayingAdvice(
+    params: { locationName?: string; lat: number; lon: number }, // Now accepts coordinates
+    date: string // date string remains the same
+): Promise<SprayingAdvice | { error: string }> {
     const requestedDate = new Date(date);
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Normalize to start of day
 
     let daysOffset = 0;
-    // Simple date parsing to determine how many days into the forecast we need
     if (requestedDate.toDateString() === today.toDateString()) {
         daysOffset = 0; // "today"
     } else {
-        // Calculate difference in days. +1 because forecast[0] is often current day's first interval
         daysOffset = Math.ceil((requestedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        if (daysOffset < 0) daysOffset = 0; // Don't look backwards
-        // Limit to OpenWeatherMap's 5-day forecast (index 0 to 4)
+        if (daysOffset < 0) daysOffset = 0;
         if (daysOffset > 4) daysOffset = 4;
     }
 
-
-    const forecastResult = await getForecast(location, daysOffset + 1);
+    // Call getForecast with coordinates instead of location name
+    const forecastResult = await getForecast({ location: params.locationName, lat: params.lat, lon: params.lon }, daysOffset + 1); // Pass params object
 
     if ('error' in forecastResult) {
         return { error: `Could not get weather data for spraying advice: ${forecastResult.error}` };
@@ -52,7 +53,7 @@ export async function getSprayingAdvice(location: string, date: string): Promise
     const targetForecast: ForecastItem | undefined = forecastResult.forecast[daysOffset];
 
     if (!targetForecast) {
-        return { error: `No forecast available for ${date} in ${location}. Please ensure the date is within the next 5 days.` };
+        return { error: `No forecast available for ${date} in the specified location. Please ensure the date is within the next 5 days.` };
     }
 
     const { temperature, feels_like, humidity, wind_speed, description } = targetForecast;
@@ -67,9 +68,7 @@ export async function getSprayingAdvice(location: string, date: string): Promise
         rainProbability = 80;
     }
 
-
-    // --- Apply Rules ---
-
+    // --- Apply Rules --- (Keep these rules as they are)
     // 1. Wind Speed
     if (wind_speed < SPRAYING_THRESHOLDS.windSpeed.unsuitable.below || wind_speed > SPRAYING_THRESHOLDS.windSpeed.unsuitable.above) {
         status = 'Unsuitable';
@@ -115,14 +114,12 @@ export async function getSprayingAdvice(location: string, date: string): Promise
         reasons.push('Potential for temperature inversion due to calm and clear conditions. Avoid spraying if an inversion is suspected.');
     }
 
-
     if (status === 'Good' && reasons.length === 0) {
         reasons.push('All weather parameters appear within optimal ranges.');
     }
 
-
     return {
-        location,
+        location: params.locationName || forecastResult.location, // Use provided name or fetched name
         date: targetForecast.date,
         status,
         reasons: reasons.length > 0 ? reasons : ['Conditions appear generally suitable.'],
@@ -130,7 +127,7 @@ export async function getSprayingAdvice(location: string, date: string): Promise
             temperature,
             feels_like,
             humidity,
-            windSpeed: wind_speed, // Use wind_speed from forecast and map to windSpeed
+            windSpeed: wind_speed,
             description,
             rainProbability,
         }
