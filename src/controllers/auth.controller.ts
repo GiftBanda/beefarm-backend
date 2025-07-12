@@ -82,7 +82,7 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-export const getMe = async (req: Request, res: Response) => {
+export const getUser = async (req: Request, res: Response) => {
   try {
     // req.user is set by the protect middleware
     const user = await userService.findUserById(req.user.id);

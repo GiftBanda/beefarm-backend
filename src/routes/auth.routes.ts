@@ -8,6 +8,6 @@ router.post('/signup', authController.signup);
 router.post('/login', authController.login);
 
 // Protected routes
-router.get('/me', protect, authController.getMe);
+router.get('/user', protect, authController.getUser);
 
 export default router;
