@@ -7,8 +7,6 @@ export const analyzePlantImage = async (req: Request, res: Response) => {
     // For base64, we expect it in the body.
     const { imageData, mimeType } = req.body as PlantAnalysisRequest;
 
-    console.log(`Received analysis request for mimeType: ${mimeType}, data length (approx): ${imageData.length}`);
-
     if (!imageData || !mimeType) {
         return res.status(400).json({
             message: "Missing imageData (base64) or mimeType in request body.",

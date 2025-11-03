@@ -1,9 +1,9 @@
 // src/routes/chatRoutes.ts
 import { Router } from 'express';
-import { chatWithGemini } from '../controllers/chatController';
+import { chatWithAI } from '../controllers/chatController';
 
 const router = Router();
 
-router.post('/', chatWithGemini);
+router.post('/', chatWithAI);
 
 export default router;

@@ -4,6 +4,41 @@ import { FunctionDeclaration, Part } from '@google/generative-ai'; // Import Fun
 
 // src/types/index.ts
 
+// src/types/index.ts
+export interface DeepSeekMessage {
+    role: "system" | "user" | "assistant" | "tool";
+    content: string;
+    tool_call_id?: string;
+    tool_calls?: Array<{
+        id: string;
+        type: "function";
+        function: {
+            name: string;
+            arguments: string;
+        };
+    }>;
+}
+
+export interface DeepSeekFunctionDeclaration {
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: Record<string, any>;
+        required?: string[];
+    };
+}
+
+export interface DeepSeekTool {
+    type: "function";
+    function: DeepSeekFunctionDeclaration;
+}
+
+export interface ToolConfig {
+    function: (...args: any[]) => Promise<any>;
+    declaration: DeepSeekFunctionDeclaration;
+}
+
 export interface WeatherData {
     location: string;
     temperature: number;

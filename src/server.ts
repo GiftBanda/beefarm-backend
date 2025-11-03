@@ -26,7 +26,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // Mount your routes
-app.use('/api/chat', chatRoutes); 
+app.use('/api/v1/chat', chatRoutes); 
 
 app.use('/api/weather', locationWeatherRoutes);
 

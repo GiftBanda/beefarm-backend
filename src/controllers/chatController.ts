@@ -1,9 +1,10 @@
 // src/controllers/chatController.ts
+// src/controllers/chatController.ts
 import { Request, Response } from 'express';
-import { getGeminiResponse } from '../models/geminiModel'; // Import the model
+import { getDeepSeekResponse } from '../models/deepseekModel'; // Import the new DeepSeek model
 import { ChatRequestBody, ChatResponse } from '../types';
 
-export const chatWithGemini = async (req: Request<{}, {}, ChatRequestBody>, res: Response<ChatResponse | { error: string }>) => {
+export const chatWithAI = async (req: Request<{}, {}, ChatRequestBody>, res: Response<ChatResponse | { error: string }>) => {
     const userMessage = req.body.message;
 
     if (!userMessage) {
@@ -11,8 +12,8 @@ export const chatWithGemini = async (req: Request<{}, {}, ChatRequestBody>, res:
     }
 
     try {
-        const geminiTextResponse = await getGeminiResponse(userMessage);
-        res.json({ response: geminiTextResponse });
+        const aiResponse = await getDeepSeekResponse(userMessage);
+        res.json({ response: aiResponse });
     } catch (error: any) {
         console.error('Error in chat controller:', error.message);
         res.status(500).json({ error: error.message || 'Internal Server Error' });
