@@ -124,7 +124,7 @@ export interface GeminiToolFunction { // Renamed from ToolDeclaration for better
 // This interface combines the actual function implementation with its Gemini declaration
 export interface ToolConfig {
     function: (...args: any[]) => Promise<any>;
-    declaration: GeminiToolFunction; // Now using the exported interface
+    declaration: DeepSeekFunctionDeclaration; // Now using the exported interface
 }
 
 // --- Request/Response Types ---
