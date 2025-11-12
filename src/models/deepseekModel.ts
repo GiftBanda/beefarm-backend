@@ -6,7 +6,8 @@ import config from '../config/environment';
 
 const OPENROUTER_API_KEY = config.openrouterApiKey;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const DEEPSEEK_R1_MODEL = 'deepseek/deepseek-r1'; // OpenRouter model name for DeepSeek R1
+//const DEEPSEEK_R1_MODEL = 'deepseek/deepseek-r1'; // OpenRouter model name for DeepSeek R1
+const DEEPSEEK_R1_MODEL = 'deepseek/deepseek-r1-0528-qwen3-8b:free';
 
 // Tool configurations remain the same
 const tools: { [key: string]: ToolConfig } = {
@@ -109,9 +110,9 @@ export async function getDeepSeekResponse(userMessage: string): Promise<string> 
             body: JSON.stringify({
                 model: DEEPSEEK_R1_MODEL,
                 messages: messages,
-                tools: toolDeclarations.length > 0 ? toolDeclarations : undefined,
-                tool_choice: toolDeclarations.length > 0 ? "auto" : undefined,
-                stream: false
+                // tools: toolDeclarations.length > 0 ? toolDeclarations : undefined,
+                // tool_choice: toolDeclarations.length > 0 ? "auto" : undefined,
+                // stream: false
             })
         });
 
