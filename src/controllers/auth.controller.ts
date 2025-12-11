@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 
 export const signup = async (req: Request, res: Response) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name, role } = req.body;
 
     // Check if user already exists
     const existingUser = await userService.findUserByEmail(email);
@@ -17,7 +17,7 @@ export const signup = async (req: Request, res: Response) => {
     }
 
     // Create new user
-    const newUser = await userService.createUser({ email, password, name });
+    const newUser = await userService.createUser({ email, password, name, role });
 
     // Generate JWT token
     const token = generateToken({ id: newUser.id, email: newUser.email });
@@ -104,6 +104,32 @@ export const getUser = async (req: Request, res: Response) => {
     res.status(500).json({
       status: 'error',
       message: err.message || 'An error occurred',
+    });
+  }
+};
+
+export const updateUserPassword = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user.id;
+    const { newPassword } = req.body;
+
+    if (!newPassword) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'New password is required',
+      });
+    }
+
+    await userService.updateUserPassword(userId, newPassword);
+    
+    res.status(200).json({
+      status: 'success',
+      message: 'Password updated successfully',
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      status: 'error',
+      message: err.message || 'An error occurred while updating password',
     });
   }
 };

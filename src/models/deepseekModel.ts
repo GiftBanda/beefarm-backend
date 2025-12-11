@@ -130,12 +130,9 @@ export async function getDeepSeekResponse(userMessage: string): Promise<string> 
             const functionName = toolCall.function.name;
             const functionArgs = JSON.parse(toolCall.function.arguments);
 
-            console.log(`DeepSeek R1 requested function call: ${functionName} with args:`, functionArgs);
-
             if (tools[functionName]) {
                 // Execute the function
                 const toolResponse = await tools[functionName].function(...Object.values(functionArgs));
-                console.log("Tool response:", toolResponse);
 
                 // Add the function response to the messages and get final response
                 messages.push(responseMessage);

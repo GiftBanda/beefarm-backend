@@ -7,6 +7,7 @@ export const createUser = async (userData: {
   email: string;
   password: string;
   name?: string;
+  role?: 'Farmer' | 'Agronomist' | 'Manager';
 }): Promise<Omit<User, 'password'>> => {
   const hashedPassword = await bcrypt.hash(userData.password, 12);
   
@@ -15,6 +16,7 @@ export const createUser = async (userData: {
       email: userData.email,
       password: hashedPassword,
       name: userData.name,
+      role: 'Farmer' // default role,
     },
     select: {
       id: true,
